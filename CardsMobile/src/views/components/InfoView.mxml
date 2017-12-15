@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:MenuPanel 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:c="views.components.*" 
+	
+	title="Info"
+	
+	width="300" height="180"
+	
+	creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.PlayerDeck;
+			
+			import persistance.ResultSummary;
+			
+			import util.CollectorRankUtil;
+			
+			
+			private function init():void
+			{
+				var s:ResultSummary = Globals.globals.resultsDAO.getResultSummary();
+				winLabel.text = s.wins.toString();
+				loseLabel.text = s.losses.toString();
+				drawLabel.text = s.draws.toString();
+			}
+			
+			
+			private var _deck:PlayerDeck;
+			private var _deckChanged:Boolean = false;
+			
+			public function set deck(value:PlayerDeck):void
+			{
+				_deck = value;
+				_deckChanged = true;
+				invalidateProperties();
+			}
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				
+				if(_deckChanged) {
+					_deckChanged = false;
+					
+					var lvl:int = _deck.getCollectorLevel();
+					var rank:String = CollectorRankUtil.getRank(lvl);
+					
+					levelLabel.text = "Collector Lvl: "+lvl.toString();
+					rankLabel.text = rank;
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<c:layout>
+		<s:VerticalLayout horizontalAlign="center" paddingLeft="20" paddingRight="20" gap="0"/>
+	</c:layout>
+	
+	<s:Label id="levelLabel" width="100%" text="Collector Level:"
+			 fontSize="28" fontWeight="bold" color="#EEEEEE" />
+	<s:Label id="rankLabel" width="100%" text=""
+			 fontSize="28" fontWeight="bold" color="#EEEEEE"/>
+	
+	<s:Spacer height="10" />
+	<s:Rect width="100%" height="1" >
+		<s:fill><s:SolidColor color="#111111" alpha="0.5" /></s:fill>
+	</s:Rect>
+	<s:Rect width="100%" height="1" >
+		<s:fill><s:SolidColor color="#CCCCCC" alpha="0.5" /></s:fill>
+	</s:Rect>
+	<s:Spacer height="20" />
+	
+	<s:Group width="100%" >
+		<s:Label text="Win" fontSize="28" fontWeight="bold" color="#EEEEEE"/>
+		<s:Label id="winLabel" right="0" fontSize="28" fontWeight="bold" color="#EEEEEE" textAlign="right" />
+	</s:Group>
+	<s:Group width="100%" >
+		<s:Label text="Draw" fontSize="28" fontWeight="bold" color="#EEEEEE"/>
+		<s:Label id="drawLabel" right="0" fontSize="28" fontWeight="bold" color="#EEEEEE" textAlign="right" />
+	</s:Group>
+	<s:Group width="100%" >
+		<s:Label text="Lose" fontSize="28" fontWeight="bold" color="#EEEEEE"/>
+		<s:Label id="loseLabel" right="0" fontSize="28" fontWeight="bold" color="#EEEEEE" textAlign="right" />
+	</s:Group>
+	
+</c:MenuPanel>

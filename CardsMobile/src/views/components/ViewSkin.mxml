@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.View")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	
+	
+	<s:Rect width="{width}" height="{height}">
+		<s:fill>
+			<s:RadialGradient >
+				<s:GradientEntry color="#CCCCCC" ratio="0" />	
+				<s:GradientEntry color="#BBBBBB" ratio="0.5" />	
+				<s:GradientEntry color="#999999" ratio="1" />	
+			</s:RadialGradient>
+		</s:fill>
+	</s:Rect>
+	
+	
+	<!-- SkinParts
+	name=contentGroup, type=spark.components.Group, required=false
+	-->
+	<s:Group id="contentGroup" width="{width}" height="{height}" >
+	</s:Group>
+	
+</s:Skin>

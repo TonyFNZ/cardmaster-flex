@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnablePopUpContainer 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	backgroundAlpha="0">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.util.Colour;
+			import com.tonyfendall.cards.player.supportClasses.PlayerBase;
+			
+			import mx.managers.PopUpManager;
+			
+			
+			[Bindable]
+			private var message:String;
+			
+			private var callback:Function;
+			
+
+			public function show(owner:DisplayObjectContainer, callback:Function):void
+			{
+				this.callback = callback;
+				super.open(owner, false);
+				PopUpManager.centerPopUp(this);
+			}
+			
+			private function hide(again:Boolean):void
+			{
+				callback.call(null, again);
+				super.close();
+			}
+		]]>
+	</fx:Script>
+	
+	<s:TitleWindow title="Game Over" close="hide(false)" >
+			<s:Label text="Play Again?" width="240" textAlign="center" fontSize="36" fontWeight="bold"
+					 paddingTop="30" paddingBottom="30"/>
+		
+		<s:controlBarContent>
+			<s:Button label="Yes" width="200" height="100" click="hide(true)"/>
+			<s:Button label="No" width="200" height="100" click="hide(false)"/>
+		</s:controlBarContent>
+	</s:TitleWindow>
+
+</s:SkinnablePopUpContainer>

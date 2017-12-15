@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	
+	title="Test View"
+	
+	creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.Card;
+			import com.tonyfendall.cards.player.HumanPlayer;
+			
+			import flash.utils.setTimeout;
+			
+			import persistance.CardType;
+			
+			
+			private function init():void
+			{
+				var xml:XML = NativeApplication.nativeApplication.applicationDescriptor;
+				var ns:Namespace = xml.namespace();
+				var version:String = xml.ns::versionLabel;
+				
+				versionLabel.text = version;
+			}
+			
+			private function beginAddCards():void
+			{
+				busyIndicator.visible = true;
+				addCardsButton.enabled = false;
+				
+				callLater(addCards);
+			}
+			
+			private function addCards():void
+			{
+				var owner:HumanPlayer = Globals.globals.player;
+				var type:CardType;
+				var card:Card;
+				for(var i:int=0; i<10; i++) {
+					type = CardType.TYPES[ Math.floor( Math.random()*CardType.TYPES.length) ];
+					card = type.generateCard(owner);
+					owner.deck.addCard(card);
+				}
+				
+				setTimeout(addCardsDone, 500);
+			}
+			
+			private function addCardsDone():void
+			{
+				busyIndicator.visible = false;
+				addCardsButton.enabled = true;
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center" verticalAlign="middle" />
+	</s:layout>
+	
+	
+	<s:Label id="versionLabel" />
+	
+	<s:Button id="addCardsButton" label="Add 10 Cards" click="beginAddCards()" />
+	
+	<s:BusyIndicator id="busyIndicator" visible="false" />
+	
+</s:View>

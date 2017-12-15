@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer 
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:view="com.tonyfendall.cards.view.*"
+	
+	autoDrawBackground="false"
+	
+	width="100%" height="140" >
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.PlayerDeck;
+			
+			import views.opponent.Opponent;
+			
+			private var _opponent:Opponent;
+			private var _opponentChanged:Boolean = false;
+			
+			private var _deck:PlayerDeck = Globals.globals.deck;
+			
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				
+				_opponent = value as Opponent;
+				_opponentChanged = true;
+				invalidateProperties();
+			}
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				
+				if(_opponentChanged) {
+					_opponentChanged = false;
+					
+					nameLabel.text = _opponent!= null ? _opponent.name : null;
+					lvlLabel.text = "Min Level: "+_opponent.minLevel;
+					
+					if(_deck.getCollectorLevel() < _opponent.minLevel) {
+						bg1.visible = bg2.visible = false;
+						nameLabel.alpha = 0.2;
+						lvlbg.fill = gradBad;
+					} else {
+						bg1.visible = bg2.visible = true;
+						nameLabel.alpha = 1;
+						lvlbg.fill = gradOK;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:LinearGradient id="gradBad" rotation="90">
+			<s:GradientEntry color="#FF0000" ratio="0" />
+			<s:GradientEntry color="#990000" ratio="1" />
+		</s:LinearGradient>
+		<s:LinearGradient id="gradOK" rotation="90">
+			<s:GradientEntry color="#00FF00" ratio="0" />
+			<s:GradientEntry color="#009900" ratio="1" />
+		</s:LinearGradient>
+	</fx:Declarations>
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="selected" />
+	</s:states>
+	
+	
+	<s:Rect id="bg1" top="0" width="100%" height="4" >
+		<s:fill><s:SolidColor color="#CCCCCC" alpha="0.5" /></s:fill>
+	</s:Rect>
+	<s:Rect id="bg2" bottom="0" width="100%" height="4" >
+		<s:fill><s:SolidColor color="#111111" alpha="0.5" /></s:fill>
+	</s:Rect>
+	
+	<s:Label id="nameLabel" x="30" width="100%" height="100%" verticalAlign="middle"
+			 fontSize="40" color="#EEEEEE" fontWeight="bold" />
+	
+	
+	
+	<s:Rect id="lvlbg" right="0" bottom="4" width="200" height="30" />
+	
+	<s:Label id="lvlLabel" right="0" bottom="6" width="200" fontSize="20" color="#FFFFFF" fontWeight="bold" textAlign="center" />
+	
+</s:ItemRenderer>

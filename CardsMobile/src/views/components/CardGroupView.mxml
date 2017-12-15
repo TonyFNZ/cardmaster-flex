@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:MenuPanel 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:c="views.components.*" 
+	title="Card Info"
+	>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.Card;
+			import com.tonyfendall.cards.model.CardGroup;
+			
+			import spark.events.IndexChangeEvent;
+			
+			private var _labelBase:String = "";
+			
+			private var _group:CardGroup;
+			private var _groupChanged:Boolean = false;
+			
+			public function set group(value:CardGroup):void
+			{
+				trace("Set Group");
+				_group = value;
+				_groupChanged = true;
+				_selectionChanged = true;
+				invalidateProperties();
+			}
+			
+			
+			
+			private var _buttonLabel:String = "";
+			private var _buttonChanged:Boolean = false;
+
+			public function set buttonLabel(value:String):void {
+				_buttonLabel = value;
+				_buttonChanged = true;
+				invalidateProperties();
+			}
+
+			private var _buttonEnabled:Boolean = false;
+			private var _buttonEnabledChanged:Boolean = false;
+
+			public function set buttonEnabled(value:Boolean):void {
+				_buttonEnabled = value;
+				_buttonEnabledChanged = true;
+				invalidateProperties();
+			}
+			
+			public var buttonCallback:Function = null;
+			
+			
+			
+			[Bindable(event="selectedCardChange")]
+			public function get selectedCard():Card
+			{
+				return spinnerList.selectedItem as Card;
+			}
+			
+			private var _selectionChanged:Boolean = false;
+			private function onSelectionChange(event:IndexChangeEvent):void
+			{
+				_selectionChanged = true;
+				invalidateProperties();
+			}
+			
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				
+				var validGroup:Boolean = (_group && _group.type && _group.cards.length);
+				
+				if(_groupChanged) {
+					_groupChanged = false;
+					
+					if(validGroup) {
+						spinnerList.dataProvider = _group.cards;
+						spinnerList.selectedIndex = 0;
+					} else {
+						spinnerList.dataProvider = null;
+					}
+					
+					if(_group.known)
+						_labelBase = _group.type.name;
+					else
+						_labelBase = "????";
+				}
+				
+				
+				if(_selectionChanged) {
+					_selectionChanged = false;
+					
+					var tmp:String = _labelBase;
+					if(validGroup) {
+						tmp += " "+(spinnerList.selectedIndex+1)+"/"+_group.cards.length;
+					}
+					labelField.text = tmp;
+					
+					dispatchEvent(new Event("selectedCardChange"));
+				}
+				
+				
+				if(_buttonChanged) {
+					_buttonChanged = false;
+					actionButton.label = _buttonLabel;
+				}
+				if(_buttonEnabledChanged) {
+					_buttonEnabledChanged = false;
+					actionButton.enabled = _buttonEnabled;
+				}
+			}
+			
+			
+			private function onAction():void
+			{
+				if(spinnerList.selectedItem == null || buttonCallback == null)
+					return;
+				
+				buttonCallback.call(null, spinnerList.selectedItem);
+			}
+				
+		]]>
+	</fx:Script>
+	
+	
+	<s:SpinnerList id="spinnerList" width="100%" height="100%"
+				   itemRenderer="views.components.CardItemRenderer"
+				   change="onSelectionChange(event)"
+				   skinClass="views.components.CardSpinnerListSkin"/>
+	
+	<s:Label id="labelField" width="100%" textAlign="center" fontSize="28" fontWeight="bold" color="#EEEEEE" />
+	
+	
+	<s:Button id="actionButton" width="100%" click="onAction()"/>
+	
+</c:MenuPanel>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("views.components.MenuPanel")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="disabled" />
+	</s:states>
+	
+	
+	<s:Rect left="0" right="0" top="10" bottom="0" radiusX="20" radiusY="20">
+		<s:stroke>
+			<s:SolidColorStroke color="#C0C0C0" weight="6" />
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color="#505050" alpha="1" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Label id="titleLabel" x="20" y="0" text=""
+			 color="#EEEEEE" fontSize="32" fontWeight="bold">
+		<s:filters>
+			<s:GlowFilter color="#000000" strength="10" blurX="5" blurY="5" />
+		</s:filters>
+	</s:Label>
+	
+	<s:Group id="contentGroup" x="20" y="34" height="{height-50}" width="{width-40}" >
+		<s:layout>
+			<s:VerticalLayout gap="10" />
+		</s:layout>
+	</s:Group>
+</s:Skin>

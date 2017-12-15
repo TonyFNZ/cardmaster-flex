@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ViewNavigatorApplication 
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	
+	applicationDPI="240"
+	firstView="views.LoadingView"
+	
+	creationComplete="init()"
+	deactivate="onDeactivate(event)">
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+	</fx:Style>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.Card;
+			import com.tonyfendall.cards.model.PlayerDeck;
+			import com.tonyfendall.cards.model.util.Colour;
+			import com.tonyfendall.cards.player.HumanPlayer;
+			
+			import flash.utils.clearTimeout;
+			import flash.utils.setTimeout;
+			
+			import persistance.CardDAO;
+			import persistance.CardType;
+			import persistance.CollectorLevelDAO;
+			import persistance.Database;
+			import persistance.HandDAO;
+			import persistance.ResultsDAO;
+			
+			import views.opponent.OpponentView;
+			
+			
+			/*
+			 Function calls split through time to avoid
+			 doing to much work in a single animation frame
+			*/
+			
+			private function init():void
+			{
+				var db:Database = new Database();
+				var newInstall:Boolean = db.init();
+				
+				callLater(init2, [db, newInstall]);
+			}
+			
+			private function init2(db:Database, newInstall:Boolean):void
+			{
+				var cardDAO:CardDAO = new CardDAO(db);
+				var handDAO:HandDAO = new HandDAO(db);
+				var levelDAO:CollectorLevelDAO = new CollectorLevelDAO(db);
+				var resultsDAO:ResultsDAO = new ResultsDAO(db);
+				Globals.globals.resultsDAO = resultsDAO;
+				
+				var deck:PlayerDeck = new PlayerDeck(cardDAO, handDAO);
+				Globals.globals.deck = deck;
+				
+				var player:HumanPlayer = new HumanPlayer(deck);
+				player.colour = Colour.BLUE;
+				Globals.globals.player = player;
+
+				callLater(init3, [newInstall]);
+			}
+			
+			private function init3(newInstall:Boolean):void
+			{
+				if(newInstall) {
+					var owner:HumanPlayer = Globals.globals.player;
+					var type:CardType;
+					var card:Card;
+					for(var i:int=0; i<9; i++) {
+						
+						type = CardType.TYPES[ Math.floor( Math.random()*CardType.TYPES.length * 0.25) ];
+						card = type.generateCard(owner);
+						owner.deck.addCard(card);
+					}
+					
+					trace("Added initial cards");
+				}
+				
+				setTimeout(navigator.replaceView, 1000, OpponentView);
+			}
+			
+			
+			// ----------------------------------------------------------------
+			// The following code exists to work around a display rotation bug
+			// App sometimes reverts to portrait when resumed.  Solution is to
+			// listen for resume events and then reset the required orientation
+			// ----------------------------------------------------------------
+			
+			private function onDeactivate(e:Event):void
+			{
+				this.addEventListener(Event.ACTIVATE, onActivate);
+			}
+			
+			
+			private var timeout:int;
+			
+			private function onActivate(e:Event):void
+			{
+				this.removeEventListener(Event.ACTIVATE, onActivate);
+				
+				if(timeout)
+					clearTimeout(timeout);
+				
+				timeout = setTimeout(stage.setAspectRatio, 50, StageAspectRatio.LANDSCAPE);
+			}
+			
+		]]>
+	</fx:Script>
+	
+</s:ViewNavigatorApplication>

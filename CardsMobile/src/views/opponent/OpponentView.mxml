@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:c="views.components.*"
+	xmlns:deck="views.deck.*"
+	
+	title="OponentView" 
+	skinClass="views.components.ViewSkin"
+	overlayControls="true"
+	actionBarVisible="false"
+	tabBarVisible="false"
+	
+	creationComplete="init()" >
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.util.Colour;
+			import com.tonyfendall.cards.player.supportClasses.AIPlayer;
+			
+			import mx.collections.ArrayList;
+			
+			import views.HowToPlayView;
+			import views.deck.DeckView;
+			import views.hand.HandSelectView;
+			import views.testing.TestView;
+			
+			
+			private static const OPPONENTS:Array = [
+				new Opponent("Tramp", 					[0,1,2,3,4],							0),
+				new Opponent("Passer-by", 				[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],		0),
+				new Opponent("Lad", 					[10,11,12,13,14,15,16,17,18,19],	  100),
+				new Opponent("Moogle", 					[20,21,22,23,24,25,26,27,28,29],	  200),
+				new Opponent("Theif", 					[30,31,32,33,34,35,36,37,38,39],	  300),
+				new Opponent("Worker #9", 				[40,41,42,43,44,45,46,47,48,49],	  400),
+				new Opponent("Gilbert Teacher", 		[50,51,52,53,54,55,56,57,58,59],	  500),
+				new Opponent("Eidolon Master Liera", 	[60,61,62,63,64,65,66,67,68,69],	  600),
+				new Opponent("Weapon Master Hant", 		[70,71,72,73,74,75,76,77,78,79],	  700)
+			];
+			
+			private function init():void
+			{
+				opponentList.dataProvider = new ArrayList(OPPONENTS);
+				
+				infoView.deck = Globals.globals.deck;
+			}
+			
+			
+			private function opponentSelected():void
+			{
+				var oppoent:Opponent = opponentList.selectedItem as Opponent;
+				if(oppoent == null)
+					return;
+				
+				if(oppoent.minLevel > Globals.globals.deck.getCollectorLevel())
+					return;
+				
+				var ai:AIPlayer = new AIPlayer(oppoent.name, oppoent.cards);
+					ai.colour = Colour.RED;
+				Globals.globals.oponent = ai;
+				
+				navigate(HandSelectView);
+			}
+			
+			private function navigate(view:Class):void
+			{
+				navigator.pushView(view);
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:HorizontalLayout />
+	</s:layout>
+	
+	<c:MenuPanel width="100%" height="100%" title="Select Enemy">
+		
+		<s:List id="opponentList" width="100%" height="100%"
+				itemRenderer="views.opponent.OpponentItemRenderer"
+				contentBackgroundAlpha="0"
+				click="opponentSelected()"/>
+		
+	</c:MenuPanel>
+	
+	<s:VGroup width="350" height="100%">
+		
+		<c:InfoView id="infoView" width="100%" height="250" />
+		
+		
+		<c:MenuPanel width="100%" height="100%" title="Menu">
+			<c:layout>
+				<s:VerticalLayout paddingLeft="20" paddingRight="20" />
+			</c:layout>
+			
+			<s:Button label="Deck" width="100%" click="{navigate(DeckView)}" />
+			
+			<s:Button label="How to Play" width="100%" click="{navigate(HowToPlayView)}" />
+			
+			<s:Button label="Testing" width="100%" click="{navigate(TestView)}" />
+			
+		</c:MenuPanel>
+
+	</s:VGroup>
+	
+</s:View>

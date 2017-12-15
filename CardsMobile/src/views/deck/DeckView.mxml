@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:deck="views.deck.*"
+	xmlns:components="views.components.*"
+	
+	title="DeckView"
+	
+	skinClass="views.components.ViewSkin"
+	overlayControls="true"
+	actionBarVisible="false"
+	tabBarVisible="false"
+	
+	add="onAdded(event)" >
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.Card;
+			import com.tonyfendall.cards.model.CardGroup;
+			import com.tonyfendall.cards.model.PlayerDeck;
+			import com.tonyfendall.cards.player.HumanPlayer;
+			
+			import mx.events.FlexEvent;
+			
+			import persistance.CardType;
+			import persistance.ResultSummary;
+			
+			
+			private var _player:HumanPlayer;
+			private var _deck:PlayerDeck;
+			private var _deckChanged:Boolean = false;
+			
+			
+			private function onAdded(event:FlexEvent):void
+			{
+				_player = Globals.globals.player;
+				_deck = _player.deck;
+				_deckChanged = true;
+				invalidateProperties();
+			}
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				
+				if(_deckChanged) {
+					_deckChanged = false;
+					
+					// Info View
+					infoView.deck = _deck;
+					
+					typesView.groups = _deck.getCardGroups();
+					typesView.numCards = _deck.getNumCards();
+				}
+			}
+			
+			private function onGroupSelected(group:CardGroup):void
+			{
+				groupView.group = group;
+			}
+			
+			private function discardCard(card:Card):void
+			{
+				_deck.removeCard( card );
+				_deckChanged = true;
+				invalidateProperties();
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:HorizontalLayout />
+	</s:layout>
+	
+	
+	<components:CardTypesView id="typesView" width="100%" height="100%" groupSelectCallback="onGroupSelected" />
+	
+	<s:VGroup width="350" height="100%" >
+		
+		<components:CardGroupView id="groupView" width="100%" height="100%" 
+								  buttonEnabled="{groupView.selectedCard != null}"
+								  buttonLabel="Discard"
+								  buttonCallback="{discardCard}"/>
+		
+		<components:InfoView id="infoView" width="100%" height="250" />
+		
+	</s:VGroup>
+	
+</s:View>

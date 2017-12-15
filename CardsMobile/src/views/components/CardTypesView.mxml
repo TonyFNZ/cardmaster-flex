@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:MenuPanel 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:c="views.components.*"
+	title="Cards">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.Card;
+			import com.tonyfendall.cards.model.CardGroup;
+			
+			import mx.collections.ArrayList;
+			
+			import persistance.CardType;
+			
+			private var typeIcons:Vector.<TypeIcon> = new Vector.<TypeIcon>(CardType.TYPES.length, true);
+			
+			public var groupSelectCallback:Function;
+			
+
+			
+			private var _groups:Vector.<CardGroup>;
+			private var _groupsChanged:Boolean = false;
+			public function set groups(value:Vector.<CardGroup>):void
+			{
+				_groups = value;
+				_groupsChanged = true;
+				invalidateProperties();
+			}
+
+			private var _numCards:int = 0;
+			private var _numCardsChanged:Boolean = false;
+			public function set numCards(value:int):void
+			{
+				_numCards = value;
+				_numCardsChanged = true;
+				invalidateProperties();
+			}
+			
+			
+			override protected function createChildren():void
+			{
+				super.createChildren();
+				
+				var numTypes:int = CardType.TYPES.length
+				for(var i:int=0; i<numTypes; i++) {
+					typeIcons[i] = new TypeIcon();
+					typesContainer.addElement(typeIcons[i]);
+					typeIcons[i].addEventListener(MouseEvent.CLICK, onTypeIconClick);
+				}
+			}
+			
+			
+			private var firstTime:Boolean = true;
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				
+				if(_groupsChanged) {
+					_groupsChanged = false;
+					
+					var numGroups:int = _groups.length;
+					var ownedGroups:int = 0;
+					for(var i:int=0; i<numGroups; i++) {
+						typeIcons[i].type = _groups[i].type;
+						typeIcons[i].count = _groups[i].cards.length;
+						
+						if(_groups[i].cards.length > 0)
+							ownedGroups += 1;
+					}
+					
+					if(firstTime) {
+						selectTypeIcon( typeIcons[0] );
+					} else {
+						selectTypeIcon(_selectedIcon);
+					}
+					firstTime = false;
+					
+					typesLabel.text = "Types: "+ownedGroups;
+				}
+				
+				if(_numCardsChanged) {
+					_numCardsChanged = false;
+					
+					stockLabel.text = "Stock: "+_numCards;
+				}
+			}
+			
+
+			private function onTypeIconClick(event:MouseEvent):void
+			{
+				var icon:TypeIcon = event.currentTarget as TypeIcon;
+				selectTypeIcon(icon);
+			}
+			
+			private var _selectedIcon:TypeIcon;
+
+			private function selectTypeIcon(icon:TypeIcon):void
+			{
+				_selectedIcon = icon;
+				
+				if(groupSelectCallback != null)
+				{
+					if(icon.type != null) {
+						groupSelectCallback.call(null, _groups[icon.type.id]);
+					} else {
+						groupSelectCallback.call(null, null);
+					}
+				}
+				
+				var numTypes:int = CardType.TYPES.length;
+				for(var i:int=0; i<numTypes; i++) {
+					typeIcons[i].selected = (typeIcons[i] == icon);
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Scroller width="100%" height="100%">
+		<s:Group id="typesContainer" >
+			<s:layout>
+				<s:TileLayout horizontalGap="10" verticalGap="10" 
+							  paddingLeft="10"
+							  columnWidth="100" rowHeight="100"
+							  orientation="rows" />
+							  <!--requestedColumnCount="10" requestedRowCount="10"-->
+			</s:layout>
+		</s:Group>
+	</s:Scroller>
+	
+	<s:HGroup width="100%" >
+		<s:Label id="typesLabel" width="100%" text="" textAlign="center" fontWeight="bold" fontSize="30" color="#EEEEEE" />
+		<s:Label id="stockLabel" width="100%" text="" textAlign="center" fontWeight="bold" fontSize="30" color="#EEEEEE"/>
+	</s:HGroup>
+</c:MenuPanel>

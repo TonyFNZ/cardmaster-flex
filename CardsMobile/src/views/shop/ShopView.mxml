@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:view="com.tonyfendall.cards.view.*"
+	xmlns:deck="views.deck.*"
+	
+	title="DeckView"
+	
+	add="onAdded()" xmlns:shop="views.shop.*"  >
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.PlayerDeck;
+			import com.tonyfendall.cards.player.HumanPlayer;
+			
+			import persistance.CardType;
+			
+			private var player:HumanPlayer;
+			private var deck:PlayerDeck;
+			
+			
+			private function onAdded():void
+			{
+				player = Globals.globals.player;
+				deck = player.deck;
+			}
+			
+			private function onBuy(event:ShopEvent):void
+			{
+				var si:ShopItem = event.shopItem;
+				deck.addCard( si.card );
+				si.reset();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<shop:ShopItemView id="siv1" shopItem="{new ShopItem(CardType.TYPES[0], 0)}" buy="onBuy(event)" />
+	<shop:ShopItemView id="siv2" shopItem="{new ShopItem(CardType.TYPES[1], 0)}" buy="onBuy(event)" />
+	<shop:ShopItemView id="siv3" shopItem="{new ShopItem(CardType.TYPES[2], 0)}" buy="onBuy(event)" />
+	<shop:ShopItemView id="siv4" shopItem="{new ShopItem(CardType.TYPES[3], 0)}" buy="onBuy(event)" />
+	
+</s:View>

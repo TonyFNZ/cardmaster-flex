@@ -1,0 +1,15 @@
+<project name="StarlingTemplateMobile" default="copyProjectFiles" basedir=".">
+	<property name="ROOT" location="../../"/>
+	<property name="STARLING" location="${ROOT}/Frameworks/Starling/Starling-Framework/"/>
+	<target name="copyProjectFiles">
+		<!-- Copy starling.swc to libs folder -->
+		<copy file="${STARLING}/starling/bin/starling.swc" todir="libs" />
+		<!-- Copy demo files -->
+		<copy todir="./src">
+			<fileset dir="${STARLING}/samples/scaffold_mobile/src"/> 
+		</copy>
+		<copy todir="./media">
+			<fileset dir="${STARLING}/samples/scaffold_mobile/media"/> 
+		</copy>
+	</target>
+</project>

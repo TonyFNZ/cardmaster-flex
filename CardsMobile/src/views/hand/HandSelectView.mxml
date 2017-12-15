@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:deck="views.deck.*"
+	xmlns:view="com.tonyfendall.cards.view.*"
+	
+	title="DeckView"
+	
+	skinClass="views.components.ViewSkin"
+	overlayControls="true"
+	actionBarVisible="false"
+	tabBarVisible="false"
+	
+	add="onAdded(event)" xmlns:components="views.components.*"  >
+	
+	<fx:Script>
+		<![CDATA[
+			import com.tonyfendall.cards.model.Card;
+			import com.tonyfendall.cards.model.CardGroup;
+			import com.tonyfendall.cards.model.PlayerDeck;
+			import com.tonyfendall.cards.player.HumanPlayer;
+			
+			import mx.events.FlexEvent;
+			
+			import persistance.CardType;
+			import persistance.ResultSummary;
+			
+			import views.game.GameView;
+			
+			private var _groups:Vector.<CardGroup> = new Vector.<CardGroup>(CardType.TYPES.length, true);
+			
+			private var _player:HumanPlayer;
+			private var _deck:PlayerDeck;
+			
+			private var _tmpHand:Array;
+			private var _deckChanged:Boolean = false;
+			
+			
+			
+			private function onAdded(event:FlexEvent):void
+			{
+				_player = Globals.globals.player;
+				_deck = _player.deck;
+				_tmpHand = _deck.getHand();
+				
+				
+				var numGroups:int = CardType.TYPES.length;
+				var deckGroups:Vector.<CardGroup> = _deck.getCardGroups();
+				for(var i:int =0; i<numGroups; i++) {
+					_groups[i] = new CardGroup( deckGroups[i] );
+				}
+				
+ 				for each(var card:Card in _tmpHand) {
+					var g:CardGroup = _groups[card.cardType.id]; 
+					g.cards.removeItem(card);
+				} 
+				
+
+				_deckChanged = true;
+				invalidateProperties();
+				
+				typesView.numCards = _deck.getNumCards();
+			}
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				var i:int;
+				 
+				if(_deckChanged) {
+					_deckChanged = false;
+					
+					typesView.groups = _groups;
+					
+					for(i=0; i<5; i++) {
+						var view:CardViewLite = this["hand"+i] as CardViewLite;
+						
+						if(_tmpHand.length > i)
+							view.card = _tmpHand[i] as Card;
+						else
+							view.card = null;
+					}
+					
+					groupView.buttonEnabled = (_tmpHand.length < 5);
+					playBtn.enabled = (_tmpHand.length == 5);
+				}
+			}
+			
+			
+			
+			private function onGroupSelected(group:CardGroup):void
+			{
+				groupView.group = group;
+			}
+			
+			
+			private function addToHand(card:Card):void
+			{
+				_tmpHand.push( card );
+				_groups[card.cardType.id].cards.removeItem(card);
+				
+				_deckChanged = true;
+				invalidateProperties();
+			}
+			
+			private function removeFromHand(index:int):void
+			{
+				var card:Card = _tmpHand[index];
+				
+				_tmpHand.splice(index,1);
+				_groups[card.cardType.id].cards.addItem(card);
+				
+				_deckChanged = true;
+				invalidateProperties();
+			}
+			
+			private function play():void
+			{
+				_deck.setHand( _tmpHand );
+				navigator.replaceView(GameView);
+			}
+				
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:HorizontalLayout />
+	</s:layout>
+	
+	
+	<components:CardTypesView id="typesView" width="100%" height="100%" groupSelectCallback="onGroupSelected" />
+	
+	
+	<s:VGroup width="350" height="100%" >
+		
+		<components:CardGroupView id="groupView" width="100%" height="100%"
+								  buttonLabel="Add to Hand"
+								  buttonCallback="{addToHand}"/>
+		
+		<s:Button id="playBtn" width="100%" height="15%" label="PLAY" click="play()"/>
+		
+	</s:VGroup>
+	
+	
+	<s:VGroup width="{height/5}" height="100%" gap="0">
+		<view:CardViewLite id="hand0" width="{height/5}" height="{height/5}" click="removeFromHand(0)" />
+		<view:CardViewLite id="hand1" width="{height/5}" height="{height/5}" click="removeFromHand(1)" />
+		<view:CardViewLite id="hand2" width="{height/5}" height="{height/5}" click="removeFromHand(2)" />
+		<view:CardViewLite id="hand3" width="{height/5}" height="{height/5}" click="removeFromHand(3)" />
+		<view:CardViewLite id="hand4" width="{height/5}" height="{height/5}" click="removeFromHand(4)" />
+	</s:VGroup>
+	
+</s:View>
